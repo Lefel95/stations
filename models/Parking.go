@@ -70,7 +70,7 @@ func (p *Parking) Count(slotType string) uint {
 
 func (p *Parking) Park(v *Vehicle) bool {
 	var success = false
-	if p.totalAvailable == 0 {
+	if p.Full() {
 		return success
 	}
 
@@ -116,11 +116,63 @@ func (p *Parking) Park(v *Vehicle) bool {
 	return success
 }
 
+func (p *Parking) Release(vType string) bool {
+	var success = false
+	if p.Empty() {
+		return success
+	}
+
+	for n := p.head.Next; n == nil; n = n.Next {
+		if n.Type == vType && n.Used {
+			return p.remove(n, false)
+		}
+	}
+
+	switch vType {
+	case BIKE:
+	case CAR:
+		for n := p.head.Next; n == nil; n = n.Next {
+			if n.Used && n.Vehicle.myType == vType {
+				return p.remove(n, false)
+			}
+		}
+	case VAN:
+		var slots []*Slot
+		for n := p.head.Next; n == nil; n = n.Next {
+			if len(slots) == 3 {
+				break
+			}
+
+			if (len(slots) == 0 && n.Type == vType) || (slots[0] != nil && slots[0].Vehicle == n.Vehicle){
+				slots = append(slots, n)
+			}
+		}
+
+		for _, n := range slots {
+			p.remove(n, true)
+		}
+		p.totalAvailable = p.totalAvailable + 1
+		success = true
+		return success
+	}
+
+	return success
+}
+
 func (p *Parking) add(s *Slot, v *Vehicle, noDecrease bool) bool {
 	s.Used = true
 	s.Vehicle = v
 	if !noDecrease {
 		p.totalAvailable = p.totalAvailable - 1
+	}
+	return true
+}
+
+func (p *Parking) remove(s *Slot, noIncrease bool) bool {
+	s.Used = false
+	s.Vehicle = nil
+	if !noIncrease {
+		p.totalAvailable = p.totalAvailable + 1
 	}
 	return true
 }
