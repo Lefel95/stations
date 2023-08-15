@@ -76,7 +76,7 @@ func (p *Parking) Park(v *Vehicle) bool {
 
 	for n := p.head.Next; n == nil; n = n.Next {
 		if n.Type == v.Type() && !n.Used {
-			return p.add(n, v)
+			return p.add(n, v, false)
 		}
 	}
 
@@ -84,13 +84,13 @@ func (p *Parking) Park(v *Vehicle) bool {
 	case BIKE:
 		for n := p.head.Next; n == nil; n = n.Next {
 			if !n.Used {
-				return p.add(n, v)
+				return p.add(n, v, false)
 			}
 		}
 	case CAR:
 		for n := p.head.Next; n == nil; n = n.Next {
 			if !n.Used && n.Type != BIKE {
-				return p.add(n, v)
+				return p.add(n, v, false)
 			}
 		}
 	case VAN:
