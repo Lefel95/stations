@@ -1,16 +1,23 @@
 package models
 
+const (
+	BIKE = "BIKE"
+	CAR  = "CAR"
+	VAN  = "VAN"
+)
+
 type Parking struct {
-	total uint
+	total          uint
 	totalAvailable uint
-	head *Slot
+	head           *Slot
 }
 
 type Slot struct {
-	Prior *Slot
-	Type string
-	Used bool
-	Next *Slot
+	Prior   *Slot
+	Type    string
+	Used    bool
+	Vehicle *Vehicle
+	Next    *Slot
 }
 
 func (p *Parking) Total() uint {
@@ -59,4 +66,62 @@ func (p *Parking) Count(slotType string) uint {
 	}
 
 	return count
+}
+
+func (p *Parking) Park(v *Vehicle) bool {
+	var success = false
+	if p.totalAvailable == 0 {
+		return success
+	}
+
+	for n := p.head.Next; n == nil; n = n.Next {
+		if n.Type == v.Type() && !n.Used {
+			n.Used = true
+			n.Vehicle = v
+			success = true
+			return success
+		}
+	}
+
+	switch v.Type() {
+	case BIKE:
+		for n := p.head.Next; n == nil; n = n.Next {
+			if !n.Used {
+				n.Used = true
+				n.Vehicle = v
+				success = true
+				return success
+			}
+		}
+	case CAR:
+		for n := p.head.Next; n == nil; n = n.Next {
+			if !n.Used && n.Type != BIKE {
+				n.Used = true
+				n.Vehicle = v
+				success = true
+				return success
+			}
+		}
+	case VAN:
+		var slots []*Slot
+		for n := p.head.Next; n == nil; n = n.Next {
+			if len(slots) == 3 {
+				break
+			}
+
+			if !n.Used && n.Type != BIKE {
+				slots = append(slots, n)
+			}
+		}
+
+		for _, n := range slots {
+			n.Used = true
+			n.Vehicle = v
+			success = true
+			return success
+		}
+
+	}
+
+	return success
 }
