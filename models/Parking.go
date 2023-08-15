@@ -76,10 +76,7 @@ func (p *Parking) Park(v *Vehicle) bool {
 
 	for n := p.head.Next; n == nil; n = n.Next {
 		if n.Type == v.Type() && !n.Used {
-			n.Used = true
-			n.Vehicle = v
-			success = true
-			return success
+			return p.add(n, v)
 		}
 	}
 
@@ -87,19 +84,13 @@ func (p *Parking) Park(v *Vehicle) bool {
 	case BIKE:
 		for n := p.head.Next; n == nil; n = n.Next {
 			if !n.Used {
-				n.Used = true
-				n.Vehicle = v
-				success = true
-				return success
+				return p.add(n, v)
 			}
 		}
 	case CAR:
 		for n := p.head.Next; n == nil; n = n.Next {
 			if !n.Used && n.Type != BIKE {
-				n.Used = true
-				n.Vehicle = v
-				success = true
-				return success
+				return p.add(n, v)
 			}
 		}
 	case VAN:
@@ -115,13 +106,21 @@ func (p *Parking) Park(v *Vehicle) bool {
 		}
 
 		for _, n := range slots {
-			n.Used = true
-			n.Vehicle = v
-			success = true
-			return success
+			p.add(n, v, true)
 		}
-
+		p.totalAvailable = p.totalAvailable - 1
+		success = true
+		return success
 	}
 
 	return success
+}
+
+func (p *Parking) add(s *Slot, v *Vehicle, noDecrease bool) bool {
+	s.Used = true
+	s.Vehicle = v
+	if !noDecrease {
+		p.totalAvailable = p.totalAvailable - 1
+	}
+	return true
 }
