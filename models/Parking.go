@@ -20,6 +20,22 @@ type Slot struct {
 	Next    *Slot
 }
 
+func (p *Parking) AddParkingSlot(s *Slot) {
+	s.Next = nil
+	if p.head == nil {
+		s.Prior = nil
+		p.head = s
+	} else {
+		currentNode := p.head
+
+		for currentNode.Next != nil {
+			currentNode = currentNode.Next
+		}
+		s.Prior = currentNode
+		currentNode.Next = s
+	}
+}
+
 func (p *Parking) Total() uint {
 	return p.total
 }
@@ -46,7 +62,7 @@ func (p *Parking) Empty() bool {
 func (p *Parking) HasSlots(slotType string) bool {
 	var hasSlot bool
 
-	for n := p.head.Next; n == nil; n = n.Next {
+	for n := p.head.Next; n != nil; n = n.Next {
 		if n.Type == slotType && !n.Used {
 			hasSlot = true
 			return hasSlot
@@ -59,7 +75,7 @@ func (p *Parking) HasSlots(slotType string) bool {
 func (p *Parking) Count(slotType string) uint {
 	var count uint
 
-	for n := p.head.Next; n == nil; n = n.Next {
+	for n := p.head.Next; n != nil; n = n.Next {
 		if n.Type == slotType && n.Used {
 			count += 1
 		}
@@ -74,7 +90,7 @@ func (p *Parking) Park(v *Vehicle) bool {
 		return success
 	}
 
-	for n := p.head.Next; n == nil; n = n.Next {
+	for n := p.head.Next; n != nil; n = n.Next {
 		if n.Type == v.Type() && !n.Used {
 			return p.add(n, v, false)
 		}
@@ -82,20 +98,20 @@ func (p *Parking) Park(v *Vehicle) bool {
 
 	switch v.Type() {
 	case BIKE:
-		for n := p.head.Next; n == nil; n = n.Next {
+		for n := p.head.Next; n != nil; n = n.Next {
 			if !n.Used {
 				return p.add(n, v, false)
 			}
 		}
 	case CAR:
-		for n := p.head.Next; n == nil; n = n.Next {
+		for n := p.head.Next; n != nil; n = n.Next {
 			if !n.Used && n.Type != BIKE {
 				return p.add(n, v, false)
 			}
 		}
 	case VAN:
 		var slots []*Slot
-		for n := p.head.Next; n == nil; n = n.Next {
+		for n := p.head.Next; n != nil; n = n.Next {
 			if len(slots) == 3 {
 				break
 			}
@@ -122,7 +138,7 @@ func (p *Parking) Release(vType string) bool {
 		return success
 	}
 
-	for n := p.head.Next; n == nil; n = n.Next {
+	for n := p.head.Next; n != nil; n = n.Next {
 		if n.Type == vType && n.Used {
 			return p.remove(n, false)
 		}
@@ -131,19 +147,31 @@ func (p *Parking) Release(vType string) bool {
 	switch vType {
 	case BIKE:
 	case CAR:
-		for n := p.head.Next; n == nil; n = n.Next {
+		for n := p.head.Next; n != nil; n = n.Next {
 			if n.Used && n.Vehicle.myType == vType {
 				return p.remove(n, false)
 			}
 		}
 	case VAN:
 		var slots []*Slot
-		for n := p.head.Next; n == nil; n = n.Next {
+		for n := p.head.Next; n != nil; n = n.Next {
+
+			if len(slots) == 0 && n.Type == vType {
+				slots = append(slots, n)
+				break
+			}
+		}
+
+		if len(slots) == 0 {
+			return success
+		}
+
+		for n := p.head.Next; n != nil; n = n.Next {
 			if len(slots) == 3 {
 				break
 			}
 
-			if (len(slots) == 0 && n.Type == vType) || (slots[0] != nil && slots[0].Vehicle == n.Vehicle){
+			if slots[0].Vehicle == n.Vehicle {
 				slots = append(slots, n)
 			}
 		}
