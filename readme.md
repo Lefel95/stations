@@ -15,3 +15,13 @@ O estacionamento tem vagas para motos, vagas para carros e vagas grandes
 Uma moto pode estacionar em qualquer lugar
 Um carro pode estacionar em uma única vaga para carro, ou em uma vaga grande
 Uma van pode estacionar, mas ocupará 3 vagas de carro, ou uma vaga grande
+
+# Como Usar
+
+Com Go instalado na sua maquina com versao maior que 1.16, vá no terminal dentro da raiz do projeto e rode:
+
+``` go run main.go```
+
+Para testar e so rodar o comando.
+
+``` go test ./...```
