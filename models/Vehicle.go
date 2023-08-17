@@ -1,10 +1,9 @@
 package models
 
 type Vehicle struct {
-	myType string
-	
+	MyType string
 }
 
-func (v *Vehicle) Type () string {
-	return v.myType
+func (v *Vehicle) Type() string {
+	return v.MyType
 }

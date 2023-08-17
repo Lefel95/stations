@@ -34,6 +34,7 @@ func (p *Parking) AddParkingSlot(s *Slot) {
 		s.Prior = currentNode
 		currentNode.Next = s
 	}
+	p.total, p.totalAvailable = p.total+1, p.totalAvailable+1
 }
 
 func (p *Parking) Total() uint {
@@ -77,6 +78,18 @@ func (p *Parking) Count(slotType string) uint {
 
 	for n := p.head.Next; n != nil; n = n.Next {
 		if n.Type == slotType && n.Used {
+			count += 1
+		}
+	}
+
+	return count
+}
+
+func (p *Parking) CountByVehicleType(vehicleType string) uint {
+	var count uint
+
+	for n := p.head.Next; n != nil; n = n.Next {
+		if n.Used && n.Vehicle.MyType == vehicleType {
 			count += 1
 		}
 	}
@@ -148,7 +161,7 @@ func (p *Parking) Release(vType string) bool {
 	case BIKE:
 	case CAR:
 		for n := p.head.Next; n != nil; n = n.Next {
-			if n.Used && n.Vehicle.myType == vType {
+			if n.Used && n.Vehicle.MyType == vType {
 				return p.remove(n, false)
 			}
 		}
